@@ -1,0 +1,46 @@
+{
+  "lab": "lab1-gpio",
+  "description": "DHT11 — Doc nhiet do va do am",
+  "capture_time": 30,
+  "decoders": [
+    "uart:baudrate=115200:tx=D2:format=hex",
+    "timing:data=D3"
+  ],
+  "test_cases": [
+    {
+      "id": "tc1",
+      "name": "DHT11 doc tin hieu hop le (checksum dung)",
+      "points": 30,
+      "verify": {
+        "source": "dht11",
+        "type": "dht11_checksum",
+        "min_count": 3
+      }
+    },
+    {
+      "id": "tc2",
+      "name": "In dung format qua UART",
+      "points": 40,
+      "verify": {
+        "source": "uart",
+        "type": "regex",
+        "pattern": "H=\\d+\\.\\d+%-T=\\d+\\.\\d+",
+        "min_count": 5
+      }
+    },
+    {
+      "id": "tc3",
+      "name": "Gia tri nhiet do va do am hop ly",
+      "points": 30,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "extracts": [
+          { "name": "Temp", "pattern": "T=(\\d+\\.\\d+)", "min": 15, "max": 50 },
+          { "name": "Humi", "pattern": "H=(\\d+\\.\\d+)%", "min": 10, "max": 99 }
+        ],
+        "min_count": 3
+      }
+    }
+  ]
+}

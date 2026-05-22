@@ -1,0 +1,69 @@
+{
+  "lab": "lab7-dht11",
+  "description": "Lab 7: DHT11 Sensor - Đọc và hiển thị Nhiệt độ, Độ ẩm",
+  "target": "stm32f103c8",
+  "capture_time": 30,
+  "decoders": [
+    "uart:baudrate=115200:tx=D2:format=ascii",
+    "timing:data=D3"
+  ],
+  "register_checks": [
+    {
+      "id": "rc1",
+      "name": "RCC_APB2ENR — GPIOA clock enabled",
+      "points": 5,
+      "address": "0x40021018",
+      "mask": "0x00000004",
+      "expected": "0x00000004",
+      "comment": "Bit 2 IOPAEN = 1"
+    },
+    {
+      "id": "rc2",
+      "name": "GPIOA_CRL — PA0 configuration",
+      "points": 10,
+      "address": "0x40010800",
+      "mask": "0x0000000F",
+      "expected": "0x00000007",
+      "comment": "PA0[3:0] should be Output Open-Drain (0x7 or 0x6 or 0x4)"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "tc1",
+      "name": "Protocol Check: DHT11 Start Signal & Response",
+      "points": 25,
+      "description": "Kiểm tra sinh viên có tạo đúng Start Signal (>18ms) và nhận được Response từ cảm biến không",
+      "verify": {
+        "source": "dht11",
+        "type": "dht11_protocol_check",
+        "min_count": 3
+      }
+    },
+    {
+      "id": "tc2",
+      "name": "Data Integrity: Checksum Validation",
+      "points": 25,
+      "description": "Kiểm tra dữ liệu 40-bit nhận về có tính toán Checksum chính xác không",
+      "verify": {
+        "source": "dht11",
+        "type": "dht11_checksum",
+        "min_count": 3
+      }
+    },
+    {
+      "id": "tc3",
+      "name": "UART Output Format & Value Range",
+      "points": 35,
+      "description": "Kiểm tra dữ liệu in ra UART đúng định dạng H=xx.x%-T=xx.x và nằm trong dải cho phép",
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "extracts": [
+          { "name": "Humidity", "pattern": "H=(\\d+\\.\\d+)%", "min": 20, "max": 90 },
+          { "name": "Temperature", "pattern": "T=(\\d+\\.\\d+)", "min": 0, "max": 50 }
+        ],
+        "min_count": 5
+      }
+    }
+  ]
+}

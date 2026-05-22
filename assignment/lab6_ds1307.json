@@ -1,0 +1,138 @@
+{
+  "lab": "lab6-ds1307",
+  "description": "Real Time Clock — DS1307 Simulator",
+  "target": "stm32f103c8",
+  "capture_time": 20,
+  "pin_mapping": {
+    "description": "Switch Matrix CH446Q",
+    "student_pins": {
+      "I2C1_SCL": "PB6",
+      "I2C1_SDA": "PB7",
+      "UART1_TX": "PA9"
+    },
+    "matrix_config": [
+      { "from": "PB6", "to": "SIM_I2C1_SCL", "addr": [6, 0] },
+      { "from": "PB7", "to": "SIM_I2C1_SDA", "addr": [7, 1] },
+      { "from": "PA9", "to": "SIM_UART1_RX", "addr": [9, 2] }
+    ]
+  },
+  "sim_control": {
+    "interface": "UART",
+    "baudrate": 115200,
+    "commands": {
+      "init": "SET_RTC_START",
+      "pre_capture": "SET_TIME 23:59:55",
+      "post_capture": "STOP_SIM"
+    }
+  },
+  "decoders": [
+    "i2c:scl=D0:sda=D1",
+    "uart:baudrate=115200:tx=D2:format=ascii"
+  ],
+  "register_checks": [
+    {
+      "id": "rc1",
+      "name": "RCC_APB1ENR — I2C1 clock enabled",
+      "points": 5,
+      "address": "0x4002101C",
+      "mask": "0x00200000",
+      "expected": "0x00200000",
+      "comment": "Bit 21 I2C1EN = 1"
+    },
+    {
+      "id": "rc2",
+      "name": "RCC_APB2ENR — GPIOB clock enabled",
+      "points": 5,
+      "address": "0x40021018",
+      "mask": "0x00000008",
+      "expected": "0x00000008",
+      "comment": "Bit 3 IOPBEN = 1"
+    },
+    {
+      "id": "rc3",
+      "name": "GPIOB_CRL — PB6 & PB7 la AF_OD",
+      "points": 10,
+      "address": "0x40010C00",
+      "mask": "0xFF000000",
+      "expected": "0xFF000000",
+      "comment": "PB6[27:24]=1111, PB7[31:28]=1111 — Alternate Function Open-Drain"
+    },
+    {
+      "id": "rc4",
+      "name": "I2C1_CR1 — PE=1 (Peripheral Enable)",
+      "points": 10,
+      "address": "0x40005400",
+      "mask": "0x00000001",
+      "expected": "0x00000001",
+      "comment": "Bit 0 PE = 1"
+    },
+    {
+      "id": "rc5",
+      "name": "I2C1_CCR — 100kHz Standard Mode",
+      "points": 10,
+      "address": "0x4000541C",
+      "mask": "0x000010FF",
+      "expected": "0x000000B4",
+      "comment": "CCR=180 (0xB4) cho Sm 100kHz với PCLK1=36MHz"
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "tc1",
+      "name": "Dia chi DS1307 (0x68) duoc ACK",
+      "points": 15,
+      "verify": {
+        "source": "i2c",
+        "type": "i2c_addr_ack",
+        "addr": "68"
+      }
+    },
+    {
+      "id": "tc2",
+      "name": "Giao tiep I2C: Thiet lap thoi gian (Ghi vao thanh ghi 0x00)",
+      "points": 10,
+      "verify": {
+        "source": "i2c",
+        "type": "i2c_write_data",
+        "addr": "68",
+        "reg": "00"
+      }
+    },
+    {
+      "id": "tc3",
+      "name": "Giao tiep I2C: Co lenh Read tu DS1307",
+      "points": 10,
+      "verify": {
+        "source": "i2c",
+        "type": "regex",
+        "pattern": "R-Addr: 68",
+        "min_count": 1
+      }
+    },
+    {
+      "id": "tc4",
+      "name": "UART in dung format Time: HH:MM:SS",
+      "points": 15,
+      "verify": {
+        "source": "uart",
+        "type": "regex",
+        "pattern": "Time: \\d{2}:\\d{2}:\\d{2}",
+        "min_count": 3
+      }
+    },
+    {
+      "id": "tc5",
+      "name": "Gia tri thoi gian hop le (Hours/Mins/Secs)",
+      "points": 20,
+      "verify": {
+        "source": "uart",
+        "type": "regex_value_range",
+        "extracts": [
+          { "name": "Hours",   "pattern": "Time: (\\d{2}):\\d{2}:\\d{2}", "min": 0, "max": 23 },
+          { "name": "Minutes", "pattern": "Time: \\d{2}:(\\d{2}):\\d{2}", "min": 0, "max": 59 },
+          { "name": "Seconds", "pattern": "Time: \\d{2}:\\d{2}:(\\d{2})", "min": 0, "max": 59 }
+        ]
+      }
+    }
+  ]
+}

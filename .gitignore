@@ -1,0 +1,56 @@
+# Build directories
+build/
+bin/
+obj/
+*.o
+*.d
+*.lst
+*.map
+
+# Output binaries
+*.elf
+*.hex
+*.bin
+
+# Toolchain
+toolchain/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/
+
+
+# Python / Logic scripts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+logic/result.csv
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.uvoptx
+*.uvprojx
+*.uvguix.*
+*.bak
+*.dep
+*.scvd
+JLinkLog.txt
+.history/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AI & Agent files
+.gemini/
+antigravity/
+implementation_plan*.md
+walkthrough*.md
+task.md
+research_notes.md
+analysis_results.md
+
+# Log files
+*.log
