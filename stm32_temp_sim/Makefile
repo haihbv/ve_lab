@@ -154,6 +154,7 @@ C_INCLUDES =  \
 -I../simulator_fw/sim_layer/sim_dht22 \
 -I../simulator_fw/sim_layer/sim_ds1307 \
 -I../simulator_fw/sim_layer/sim_mq2 \
+-I../simulator_fw/sim_layer/sim_blink_led \
 -IDrivers/STM32F10x_StdPeriph_Driver/inc \
 -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
 -IDrivers/CMSIS/Include \
