@@ -23,6 +23,10 @@
 #include "sim_dht22.h"
 #endif
 
+#if (ENABLE_BLINK_LED == 1)
+#include "sim_blink_led.h"
+#endif
+
 void prvSetupHardware(void);
 void prvSetupLabs(void);
 
